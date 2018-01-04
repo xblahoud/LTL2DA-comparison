@@ -4,6 +4,7 @@ import sys
 import os.path
 import spot
 from IPython.display import SVG
+from datetime import datetime
 import pandas as pd
 from experiments_lib import hoa_to_spot, dot_to_svg, pretty_print
 
@@ -50,32 +51,84 @@ class LtlcrossRunner(object):
         else:
             self.log_file = log_file
 
-    def run_ltlcross(self, automata=True, check=False, timeout='300', log_file=None, save_bogus=True):
-        """Removes any older version of ``self.res_file`` and runs `ltlcross`
-        on all tools.
+    def create_args(self, automata=True, check=False, timeout='300',
+                     log_file=None, res_file=None,
+                     save_bogus=True, tool_subset=None):
+        """Creates args that are passed to run_ltlcross
         """
+        if log_file is None:
+            log_file = self.log_file
+        if res_file is None:
+            res_file = self.res_file
+        if tool_subset is None:
+            tool_subset=self.tools.keys()
+
         ### Prepare ltlcross command ###
-        subprocess.call(["rm", "-f", self.res_file, self.log_file])
-
-        tools_strs = ["{"+name+"}" + cmd for (name, cmd) in self.tools.items()]
-
-        ## Run ltlcross ##
+        tools_strs = ["{"+name+"}" + cmd for (name, cmd) in self.tools.items() if name in tool_subset]
         args = tools_strs +  ' '.join(['-F '+F for F in self.f_files]).split()
         if timeout:
             args.append('--timeout='+timeout)
         if automata:
             args.append('--automata')
         if save_bogus:
-            args.append('--save-bogus={}_bogus.ltl'.format(self.res_file[:-4]))
+            args.append('--save-bogus={}_bogus.ltl'.format(res_file[:-4]))
         if not check:
             args.append('--no-checks')
         args.append('--products=0')
-        args.append('--csv='+self.res_file)
+        args.append('--csv='+res_file)
+        return args
+
+    def ltlcross_cmd(self, args=None, automata=True,
+                     check=False, timeout='300',
+                     log_file=None, res_file=None,
+                     save_bogus=True, tool_subset=None):
+        """Returns ltlcross command for the parameters.
+        """
         if log_file is None:
             log_file = self.log_file
-        else:
-            self.log_file = log_file
+        if res_file is None:
+            res_file = self.res_file
+        if tool_subset is None:
+            tool_subset=self.tools.keys()
+        if args is None:
+            args = self.create_args(automata, check, timeout,
+                                    log_file, res_file,
+                                    save_bogus, tool_subset)
+        return ' '.join(['ltlcross'] + args)
+
+    def run_ltlcross(self, args=None, automata=True,
+                     check=False, timeout='300',
+                     log_file=None, res_file=None,
+                     save_bogus=True, tool_subset=None):
+        """Removes any older version of ``self.res_file`` and runs `ltlcross`
+        on all tools.
+
+        Parameters
+        ----------
+        args : a list of ltlcross arguments that can be used for subprocess
+        tool_subset : a list of names from self.tools
+        """
+        if log_file is None:
+            log_file = self.log_file
+        if res_file is None:
+            res_file = self.res_file
+        if tool_subset is None:
+            tool_subset=self.tools.keys()
+        if args is None:
+            args = self.create_args(automata, check, timeout,
+                                    log_file, res_file,
+                                    save_bogus, tool_subset)
+
+        # Delete ltlcross result and lof files
+        subprocess.call(["rm", "-f", res_file, log_file])
+
+        ## Run ltlcross ##
         log = open(log_file,'w')
+        cmd = self.ltlcross_cmd(args)
+        print(cmd, file=log)
+        print(datetime.now().strftime('[%d.%m.%Y %T]'), file=log)
+        print('=====================', file=log,flush=True)
+        print(cmd)
         self.returncode = subprocess.call(["ltlcross"] + args, stderr=subprocess.STDOUT, stdout=log)
         log.writelines([str(self.returncode)+'\n'])
         log.close()
