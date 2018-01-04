@@ -217,7 +217,7 @@ class LtlcrossRunner(object):
         """
         return self.values[col].dropna().sum()
 
-    def smaller_than(self, tool1, tool2,
+    def smaller_than(self, tool1, tool2, reverse=False
                      restrict=True,
                      col='states', restrict_cols=True):
         """Returns a dataframe with results where ``col`` for ``tool1``
@@ -231,6 +231,8 @@ class LtlcrossRunner(object):
         tool2 : String
             name of tool for comparison (the worse one)
             must be among tools
+        reverse : Boolean, default ``False``
+            if ``True``, it switches ``tool1`` and ``tool2``
         restrict : Boolean, default ``True``
             if ``True``, the returned DataFrame contains only the compared
             tools
@@ -245,6 +247,8 @@ class LtlcrossRunner(object):
             raise ValueError(tool2)
         if col not in self.cols:
             raise ValueError(col)
+        if reverse:
+            tool1, tool2 = tool2, tool1
         v = self.values
         res = v[v[col][tool1] < v[col][tool2]]
         if restrict:
