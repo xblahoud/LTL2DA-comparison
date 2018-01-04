@@ -128,7 +128,6 @@ class LtlcrossRunner(object):
         print(cmd, file=log)
         print(datetime.now().strftime('[%d.%m.%Y %T]'), file=log)
         print('=====================', file=log,flush=True)
-        print(cmd)
         self.returncode = subprocess.call(["ltlcross"] + args, stderr=subprocess.STDOUT, stdout=log)
         log.writelines([str(self.returncode)+'\n'])
         log.close()
