@@ -133,13 +133,15 @@ class LtlcrossRunner(object):
         log.writelines([str(self.returncode)+'\n'])
         log.close()
 
-    def parse_results(self):
+    def parse_results(self, res_file=None):
         """Parses the ``self.res_file`` and sets the values, automata, and
         form. If there are no results yet, it runs ltlcross before.
         """
-        if not os.path.isfile(self.res_file):
-            self.run_ltlcross()
-        res = pd.read_csv(self.res_file)
+        if res_file is None:
+            res_file = self.res_file
+        if not os.path.isfile(res_file):
+            raise FileNotFoundError(res_file)
+        res = pd.read_csv(res_file)
         # Removes unnecessary parenthesis from formulas
         res.formula = res['formula'].map(pretty_print)
 
