@@ -157,7 +157,7 @@ class LtlcrossRunner(object):
             self.values[col, colname] = self.values[col][tools].min(axis=1)
         self.values.sort_index(axis=1, level=0, inplace=True)
 
-    def aut_for_id(self, form_id, tool, sets=False):
+    def aut_for_id(self, form_id, tool):
         """For given formula id and tool it returns the corresponding
         non-deterministic automaton as a Spot's object.
 
@@ -167,34 +167,12 @@ class LtlcrossRunner(object):
             id of formula to use
         tool : String
             name of the tool to use to produce the automaton
-        sets : Bool
-            if ``True``, disable Spot's simplifications and thus
-            keep the original state names. **MAY BE DIFFERENT FROM
-            THE ORIGINAL AUTOMATON**
         """
         if self.automata is None:
             raise AssertionError("No results parsed yet")
         if tool not in self.tools.keys():
             raise ValueError(tool)
-        if not sets:
-            return hoa_to_spot(self.automata.loc[form_id, tool])
-
-        cmd = create_ltl3hoa_cmd(self.tools[tool])
-        cmd += ' -p2 -o hoa -z0 -u0'
-        f = self.form_of_id(form_id, False)
-        ltl3hoa = subprocess.Popen(cmd.split() + ["-f", f],
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = ltl3hoa.communicate()
-        if stderr:
-            print("Calling the translator produced the message:\n" +
-                  stderr.decode('utf-8'), file=sys.stderr)
-        ret = ltl3hoa.wait()
-        if ret:
-            raise subprocess.CalledProcessError(ret, 'translator')
-        hoa = stdout.decode('utf-8')
-        return hoa_to_spot(hoa)
+        return hoa_to_spot(self.automata.loc[form_id, tool])
 
     def cummulative(self, col="states"):
         """Returns table with cummulative numbers of given ``col``.
