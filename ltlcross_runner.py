@@ -315,3 +315,12 @@ class LtlcrossRunner(object):
         if spot_obj:
             return spot.formula(f)
         return f
+
+    def id_of_form(self, f, convert=False):
+        """Returns id of a given formula. If ``convert`` is ``True``
+        it also calls ``bogus_to_lcr`` first.
+        """
+        if convert:
+            f = bogus_to_lcr(f)
+        ni = self.values.index.droplevel(0)
+        return ni.get_loc(f)
