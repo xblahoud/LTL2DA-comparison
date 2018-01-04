@@ -8,6 +8,12 @@ from datetime import datetime
 import pandas as pd
 from experiments_lib import hoa_to_spot, dot_to_svg, pretty_print
 
+def bogus_to_lcr(form):
+    """Converts a formula as it is printed in ``_bogus.ltl`` file
+    (uses ``--relabel=abc``) to use ``pnn`` AP names.
+    """
+    args = ['-r0','--relabel=pnn','-f',form]
+    return subprocess.check_output(["ltlfilt"] + args, universal_newlines=True).strip()
 
 class LtlcrossRunner(object):
     """A class for running Spot's `ltlcross` and storing and manipulating
