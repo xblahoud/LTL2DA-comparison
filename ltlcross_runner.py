@@ -217,7 +217,7 @@ class LtlcrossRunner(object):
         """
         return self.values[col].dropna().sum()
 
-    def smaller_than(self, tool1, tool2, reverse=False
+    def smaller_than(self, tool1, tool2, reverse=False,
                      restrict=True,
                      col='states', restrict_cols=True):
         """Returns a dataframe with results where ``col`` for ``tool1``
