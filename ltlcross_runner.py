@@ -8,27 +8,6 @@ import pandas as pd
 from experiments_lib import hoa_to_spot, dot_to_svg, pretty_print
 
 
-def create_ltl3hoa_cmd(ltlcross_cmd):
-    '''Given a command inltlcross'es format to produce a NA by LTL3HOA, it
-    induce the LTL3HOA's options and produce appropriete VWAA.
-
-    Returns
-    =======
-    An SVG Jupyter-object.
-    '''
-    if "ltl3ba" in ltlcross_cmd:
-        return "ltl3hoa -F0 -G0 -X1 -i1 -d1"
-    if "ltl2ba" in ltlcross_cmd:
-        return "ltl3hoa -F0 -G0 -X0 -i0 -d0"
-
-    s = str(ltlcross_cmd)
-    for token in ["-f", "%f", "%O", ">", "-p 2", "-p2", "-o", "dot",
-                  " | autfilt --high", "-z0", "-z1", "-z 0", "-z 1"]:
-        s = s.replace(token, "")
-    # print(' '.join(s.split()))
-    return ' '.join(s.split())
-
-
 class LtlcrossRunner(object):
     """A class for running Spot's `ltlcross` and storing and manipulating
     its results. For LTL3HOA it can also draw very weak alternating automata
