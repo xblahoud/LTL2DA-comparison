@@ -147,13 +147,15 @@ class LtlcrossRunner(object):
         if not os.path.isfile(res_file):
             raise FileNotFoundError(res_file)
         res = pd.read_csv(res_file)
+        # Add incorrect columns to track flawed automata
+        if not 'incorrect' in res.columns:
+            res['incorrect'] = False
         # Removes unnecessary parenthesis from formulas
         res.formula = res['formula'].map(pretty_print)
 
         form = pd.DataFrame(res.formula.drop_duplicates())
         form['form_id'] = range(len(form))
         form.index = form.form_id
-        #form['interesting'] = form['formula'].map(is_interesting)
 
         res = form.merge(res)
         # Shape the table
@@ -170,6 +172,10 @@ class LtlcrossRunner(object):
         # Removes `automata` from column names -- flatten the index
         automata.columns = automata.columns.levels[1]
         form = form.set_index(['form_id', 'formula'])
+
+        # Store incorrect information separately
+        self.incorrect = table[['incorrect']]
+        self.incorrect.columns = self.incorrect.columns.droplevel()
 
         # stores the followed columns only
         values = table[self.cols]
@@ -324,3 +330,32 @@ class LtlcrossRunner(object):
             f = bogus_to_lcr(f)
         ni = self.values.index.droplevel(0)
         return ni.get_loc(f)
+
+    def mark_incorrect(self, form_id, tool,output_file=None,input_file=None):
+        """Marks automaton given by the formula id and tool as flawed
+        and writes it into the .csv file
+        """
+        if tool not in self.tools.keys():
+            raise ValueError(tool)
+        # Put changes into the .csv file
+        if output_file is None:
+            output_file = self.res_file
+        if input_file is None:
+            input_file = self.res_file
+        csv = pd.read_csv(input_file)
+        if not 'incorrect' in csv.columns:
+            csv['incorrect'] = False
+        cond = (csv['formula'].map(pretty_print) ==
+                pretty_print(self.form_of_id(form_id,False))) &\
+                (csv.tool == tool)
+        csv.loc[cond,'incorrect'] = True
+        csv.to_csv(output_file,index=False)
+
+        # Mark the information into self.incorrect
+        self.incorrect.loc[self.index(form_id)][tool] = True
+
+    def na_incorrect(self):
+        self.values = self.values[~self.incorrect]
+
+    def index(self, form_id):
+        return (form_id,self.form_of_id(form_id,False))
