@@ -173,9 +173,11 @@ class LtlcrossRunner(object):
         automata.columns = automata.columns.levels[1]
         form = form.set_index(['form_id', 'formula'])
 
-        # Store incorrect information separately
+        # Store incorrect and exit_status information separately
         self.incorrect = table[['incorrect']]
         self.incorrect.columns = self.incorrect.columns.droplevel()
+        self.exit_status = table[['exit_status']]
+        self.exit_status.columns = self.exit_status.columns.droplevel()
 
         # stores the followed columns only
         values = table[self.cols]
@@ -355,7 +357,37 @@ class LtlcrossRunner(object):
         self.incorrect.loc[self.index(form_id)][tool] = True
 
     def na_incorrect(self):
+        """Marks values for flawed automata as N/A. This causes
+        that the touched formulae will be removed from cummulative
+        etc. if computed again. To reverse this information you
+        have to parse the results again.
+
+        It also sets ``exit_status`` to ``incorrect``
+        """
         self.values = self.values[~self.incorrect]
+        self.exit_status[self.incorrect] = 'incorrect'
 
     def index(self, form_id):
         return (form_id,self.form_of_id(form_id,False))
+
+    def get_error_count(self,err_type='timeout'):
+        """Returns a Series with total number of er_type errors for
+        each tool.
+
+        Parameters
+        ----------
+        err_type : String one of `timeout`, `parse error`,
+                                 `incorrect`, `crash`, or
+                                 'no output'
+                  Type of error we seek
+        """
+        if err_type not in ['timeout', 'parse error',
+                            'incorrect', 'crash',
+                            'no output']:
+            raise ValueError(err_type)
+
+        if err_type == 'crash':
+            c1 = self.exit_status == 'exit code'
+            c2 = self.exit_status == 'signal'
+            return (c1 | c2).sum()
+        return (self.exit_status == err_type).sum()
