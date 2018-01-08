@@ -43,6 +43,45 @@ def parse_check_log(log_f):
     tools = parse_log_tools(log_f)
     return bugs, bogus_forms, tools
 
+def hunt_error_types(log_f):
+    log = open(log_f,'r')
+    errors = {}
+    err_forms = {}
+
+    formula = re.compile('.*ltl:(\d+): (.*)$')
+    empty_line = re.compile('^\s$')
+    tool = re.compile('.*\[([PN]\d+)\]: (.*)$')
+    problem = re.compile('error: .*')
+    nonempty = re.compile('error: (.*) is nonempty')
+
+    for line in log:
+        m_form = formula.match(line)
+        if m_form:
+            form = m_form
+            f_bugs = {}
+        m_tool = tool.match(line)
+        if m_tool:
+            tid = m_tool.group(1)
+        m_empty = empty_line.match(line)
+        if m_empty:
+            if len(f_bugs) > 0:
+                form_id = int(form.group(1))-1
+                errors[form_id] = f_bugs
+                err_forms[form_id] = form.group(2)
+        m_prob = problem.match(line)
+        if m_prob:
+            prob = m_prob.group(0)
+            m_bug = nonempty.match(line)
+            if m_bug:
+                prob = 'nonempty'
+                tid = m_bug.group(1)
+            if prob not in f_bugs:
+                f_bugs[prob] = []
+            f_bugs[prob].append(tid)
+    log.close()
+    tools = parse_log_tools(log_f)
+    return errors, err_forms, tools
+
 def parse_log_tools(log_f):
     log = open(log_f,'r')
     tools = {}
