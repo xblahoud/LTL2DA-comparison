@@ -59,7 +59,7 @@ class LtlcrossRunner(object):
 
     def create_args(self, automata=True, check=False, timeout='300',
                      log_file=None, res_file=None,
-                     save_bogus=True, tool_subset=None):
+                     save_bogus=True, tool_subset=None, forms = True, escape_tools=False):
         """Creates args that are passed to run_ltlcross
         """
         if log_file is None:
@@ -71,7 +71,11 @@ class LtlcrossRunner(object):
 
         ### Prepare ltlcross command ###
         tools_strs = ["{"+name+"}" + cmd for (name, cmd) in self.tools.items() if name in tool_subset]
-        args = tools_strs +  ' '.join(['-F '+F for F in self.f_files]).split()
+        if escape_tools:
+            tools_strs = ["'{}'".format(t_str) for t_str in tools_strs]
+        args = tools_strs
+        if forms:
+            args +=  ' '.join(['-F '+F for F in self.f_files]).split()
         if timeout:
             args.append('--timeout='+timeout)
         if automata:
@@ -87,7 +91,8 @@ class LtlcrossRunner(object):
     def ltlcross_cmd(self, args=None, automata=True,
                      check=False, timeout='300',
                      log_file=None, res_file=None,
-                     save_bogus=True, tool_subset=None):
+                     save_bogus=True, tool_subset=None,
+                     forms=True):
         """Returns ltlcross command for the parameters.
         """
         if log_file is None:
@@ -99,7 +104,8 @@ class LtlcrossRunner(object):
         if args is None:
             args = self.create_args(automata, check, timeout,
                                     log_file, res_file,
-                                    save_bogus, tool_subset)
+                                    save_bogus, tool_subset, forms,
+                                    escape_tools=True)
         return ' '.join(['ltlcross'] + args)
 
     def run_ltlcross(self, args=None, automata=True,
