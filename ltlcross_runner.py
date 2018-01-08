@@ -279,43 +279,6 @@ class LtlcrossRunner(object):
             res = res[col]
         return res
 
-    def vwaa_for_id(self, form_id, tool, unreachable=False):
-        """For given formula id and tool it returns the corresponding
-        non-deterministic automaton as a Spot's object
-
-        Parameters
-        ----------
-        form_id : int
-            id of formula to use
-        tool : String
-            Name of the tool (and options) to use to produce the automaton.
-            It uses the ``tools`` dict to gather the correct options.
-        unreachable : Bool
-            Prints also unreachable states if ``True``. Default ``False``
-        """
-        if self.automata is None:
-            raise AssertionError("No results parsed yet")
-        if tool not in self.tools.keys():
-            raise ValueError(tool)
-        cmd = create_ltl3hoa_cmd(self.tools[tool])
-        cmd += ' -p1 -o dot'
-        if unreachable:
-            cmd += ' -z0'
-        f = self.form_of_id(form_id, False)
-        ltl3hoa = subprocess.Popen(cmd.split() + ["-f", f],
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = ltl3hoa.communicate()
-        if stderr:
-            print("Calling the translator produced the message:\n" +
-                  stderr.decode('utf-8'), file=sys.stderr)
-        ret = ltl3hoa.wait()
-        if ret:
-            raise subprocess.CalledProcessError(ret, 'translator')
-        dot = stdout.decode('utf-8')
-        return SVG(dot_to_svg(dot))
-
     def form_of_id(self, form_id, spot_obj=True):
         """For given form_id returns the formula
 
