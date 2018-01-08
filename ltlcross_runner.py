@@ -59,7 +59,8 @@ class LtlcrossRunner(object):
 
     def create_args(self, automata=True, check=False, timeout='300',
                      log_file=None, res_file=None,
-                     save_bogus=True, tool_subset=None, forms = True, escape_tools=False):
+                     save_bogus=True, tool_subset=None,
+                     forms = True, escape_tools=False):
         """Creates args that are passed to run_ltlcross
         """
         if log_file is None:
@@ -92,7 +93,7 @@ class LtlcrossRunner(object):
                      check=False, timeout='300',
                      log_file=None, res_file=None,
                      save_bogus=True, tool_subset=None,
-                     forms=True):
+                     forms=True, lcr='ltlcross'):
         """Returns ltlcross command for the parameters.
         """
         if log_file is None:
@@ -106,12 +107,13 @@ class LtlcrossRunner(object):
                                     log_file, res_file,
                                     save_bogus, tool_subset, forms,
                                     escape_tools=True)
-        return ' '.join(['ltlcross'] + args)
+        return ' '.join([lcr] + args)
 
     def run_ltlcross(self, args=None, automata=True,
                      check=False, timeout='300',
                      log_file=None, res_file=None,
-                     save_bogus=True, tool_subset=None):
+                     save_bogus=True, tool_subset=None,
+                     lcr='ltlcross'):
         """Removes any older version of ``self.res_file`` and runs `ltlcross`
         on all tools.
 
@@ -136,11 +138,11 @@ class LtlcrossRunner(object):
 
         ## Run ltlcross ##
         log = open(log_file,'w')
-        cmd = self.ltlcross_cmd(args)
+        cmd = self.ltlcross_cmd(args,lcr=lcr)
         print(cmd, file=log)
         print(datetime.now().strftime('[%d.%m.%Y %T]'), file=log)
         print('=====================', file=log,flush=True)
-        self.returncode = subprocess.call(["ltlcross"] + args, stderr=subprocess.STDOUT, stdout=log)
+        self.returncode = subprocess.call([lcr] + args, stderr=subprocess.STDOUT, stdout=log)
         log.writelines([str(self.returncode)+'\n'])
         log.close()
 
