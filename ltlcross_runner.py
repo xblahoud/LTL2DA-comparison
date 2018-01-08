@@ -2,6 +2,7 @@
 import subprocess
 import sys
 import os.path
+import re
 import spot
 from IPython.display import SVG
 from datetime import datetime
@@ -14,6 +15,50 @@ def bogus_to_lcr(form):
     """
     args = ['-r0','--relabel=pnn','-f',form]
     return subprocess.check_output(["ltlfilt"] + args, universal_newlines=True).strip()
+
+def parse_check_log(log_f):
+    log = open(log_f,'r')
+    bugs = {}
+    bogus_forms = {}
+
+    formula = re.compile('.*ltl:(\d+): (.*)$')
+    empty_line = re.compile('^\s$')
+    problem = re.compile('error: .* nonempty')
+
+    for line in log:
+        m_form = formula.match(line)
+        if m_form:
+            form = m_form
+            f_bugs = []
+        m_empty = empty_line.match(line)
+        if m_empty:
+            if len(f_bugs) > 0:
+                form_id = int(form.group(1))-1
+                bugs[form_id] = f_bugs
+                bogus_forms[form_id] = form.group(2)
+        m_prob = problem.match(line)
+        if m_prob:
+            f_bugs.append(m_prob.group(0))
+    log.close()
+    tools = parse_log_tools(log_f)
+    return bugs, bogus_forms, tools
+
+def parse_log_tools(log_f):
+    log = open(log_f,'r')
+    tools = {}
+    tool = re.compile('.*\[(P\d+)\]: (.*)$')
+    empty_line = re.compile('^\s$')
+    for line in log:
+        m_tool = tool.match(line)
+        m_empty = empty_line.match(line)
+        if m_empty:
+            break
+        if m_tool:
+            tid = m_tool.group(1)
+            tcmd = m_tool.group(2)
+            tools[tid] = tcmd
+    log.close()
+    return tools
 
 class LtlcrossRunner(object):
     """A class for running Spot's `ltlcross` and storing and manipulating
