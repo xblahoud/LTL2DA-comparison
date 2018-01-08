@@ -239,7 +239,7 @@ class LtlcrossRunner(object):
         """
         return self.values[col].dropna().sum()
 
-    def smaller_than(self, tool1, tool2, reverse=False,
+    def smaller_than(self, t1, t2, reverse=False,
                      restrict=True,
                      col='states', restrict_cols=True):
         """Returns a dataframe with results where ``col`` for ``tool1``
@@ -247,10 +247,10 @@ class LtlcrossRunner(object):
 
         Parameters
         ----------
-        tool1 : String
+        t1 : String
             name of tool for comparison (the better one)
             must be among tools
-        tool2 : String
+        t2 : String
             name of tool for comparison (the worse one)
             must be among tools
         reverse : Boolean, default ``False``
@@ -263,21 +263,72 @@ class LtlcrossRunner(object):
         restrict_cols : Boolean, default ``True``
             if ``True``, show only the compared column
         """
-        if tool1 not in list(self.tools.keys())+self.mins:
-            raise ValueError(tool1)
-        if tool2 not in list(self.tools.keys())+self.mins:
-            raise ValueError(tool2)
-        if col not in self.cols:
-            raise ValueError(col)
+        return self.better_than(t1,t2,reverse=reverse,
+                    props=[col],include_fails=False,
+                    restrict_cols=restrict_cols,
+                    restrict_tools=restrict)
+
+    def better_than(self, t1, t2, props=['states','acc'],
+                    reverse=False, include_fails=True,
+                    restrict_cols=True,restrict_tools=True
+                    ):
+        """Compares ``t1`` against ``t2`` lexicographicaly
+        on cols from ``props`` and returns DataFrame with
+        results where ``t1`` is better than ``t2``.
+
+        Parameters
+        ----------
+        t1 : String
+            name of tool for comparison (the better one)
+            must be among tools
+        t2 : String
+            name of tool for comparison (the worse one)
+            must be among tools
+        props : list of Strings, default (['states','acc'])
+            list of columns on which we want the comparison (in order)
+        reverse : Boolean, default ``False``
+            if ``True``, it switches ``t1`` and ``t2``
+        include_fails : Boolean, default ``True``
+            if ``True``, include formulae where t2 fails and t1 does not
+            fail
+        restrict_cols : Boolean, default ``True``
+            if ``True``, the returned DataFrame contains only the compared
+            property columns
+        restrict_tools : Boolean, default ``True``
+            if ``True``, the returned DataFrame contains only the compared
+            tools
+        """
+        if t1 not in list(self.tools.keys())+self.mins:
+            raise ValueError(t1)
+        if t2 not in list(self.tools.keys())+self.mins:
+            raise ValueError(t2)
         if reverse:
-            tool1, tool2 = tool2, tool1
+            t1, t2 = t2, t1
         v = self.values
-        res = v[v[col][tool1] < v[col][tool2]]
-        if restrict:
-            res = res.loc(axis=1)[:, [tool1, tool2]]
-        if restrict_cols:
-            res = res[col]
-        return res
+        t1_ok = self.exit_status[t1] == 'ok'
+        if include_fails:
+            t2_ok = self.exit_status[t2] == 'ok'
+            # non-fail beats fail
+            c = v[t1_ok & ~t2_ok]
+            # We work on non-failures only from now on
+            eq = t1_ok & t2_ok
+        else:
+            c = pd.DataFrame()
+            eq = t1_ok
+        for prop in props:
+            # For each prop we add t1 < t2
+            better = v[prop][t1] < v[prop][t2]
+            # but only from those which were equivalent so far
+            equiv_and_better = v.loc[better & eq]
+            c = c.append(equiv_and_better)
+            # And now choose those equivalent also on prop to eq
+            eq = eq & (v[prop][t1] == v[prop][t2])
+
+        # format the output
+        idx = pd.IndexSlice
+        tools = [t1,t2] if restrict_tools else slice(None)
+        props = props if restrict_cols else slice(None)
+        return c.loc[:,idx[props,tools]]
 
     def form_of_id(self, form_id, spot_obj=True):
         """For given form_id returns the formula
