@@ -414,11 +414,13 @@ class LtlcrossRunner(object):
             return (c1 | c2).sum()
         return (self.exit_status == err_type).sum()
 
-    def cross_compare(self,tools=None):
+    def cross_compare(self,tools=None,props=['states','acc'],
+                      include_fails=True):
         if tools is None:
             tools = self.tools.keys()
         c = pd.DataFrame(index=tools, columns=tools).fillna(0)
         for tool in tools:
             c[tool] = pd.DataFrame(c[tool]).apply(lambda x:
-                      len(self.smaller_than(x.name,tool)), 1)
+                      len(self.better_than(x.name,tool,props,
+                               include_fails=include_fails)), 1)
         return c
