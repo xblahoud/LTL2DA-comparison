@@ -43,6 +43,37 @@ def parse_check_log(log_f):
     tools = parse_log_tools(log_f)
     return bugs, bogus_forms, tools
 
+def find_log_for(tool_code, form_id, log_f):
+    """Returns an array of lines from log for
+    given tool code (P1,N3,...) and form_id. The
+    form_id is taken from runner - thus we search for
+    formula number ``form_id+1``
+    """
+    log = open(log_f,'r')
+    current_f = -1
+    formula = re.compile('.*ltl:(\d+): (.*)$')
+    tool = re.compile('.*\[([PN]\d+)\]: (.*)$')
+    gather = re.compile('Performing sanity checks and gathering statistics')
+    output = []
+    for line in log:
+        m_form = formula.match(line)
+        if m_form:
+            current_f = int(m_form.group(1))
+            curr_tool = ''
+        if current_f < form_id+1:
+            continue
+        if current_f > form_id+1:
+            break
+        m_tool = tool.match(line)
+        if m_tool:
+            curr_tool = m_tool.group(1)
+        if gather.match(line):
+            curr_tool = 'end'
+        if curr_tool == tool_code:
+            output.append(line.strip())
+    log.close()
+    return output
+
 def hunt_error_types(log_f):
     log = open(log_f,'r')
     errors = {}
