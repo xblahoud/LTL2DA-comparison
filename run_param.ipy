@@ -8,6 +8,11 @@ from datetime import datetime
 import os
 import sys
 
+if len(sys.argv) == 1:
+    print("You need to specify a pattern.")
+    print("Usage: ipython3 run_param.ipy -- 'bench_name' ['fragment']")
+    os._exit(1)
+
 pattern = sys.argv[1]
 
 %run Tools.ipynb
