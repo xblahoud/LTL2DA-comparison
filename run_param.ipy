@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 '''Runs a parametric benchmark specified as a first argument.
 run with
-$ ipython3 run_param.ipy -- 'bench_names' ['fragment']
+$ ipython3 run_param.ipy -- bench_names [fragment] [data_dir]
 where bench_names is a comma separated list of benchmarks
 '''
 from ltlcross_runner import LtlcrossRunner
@@ -11,7 +11,7 @@ import sys
 
 if len(sys.argv) == 1:
     print("You need to specify a pattern.")
-    print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment']")
+    print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment'] ['data_dir']")
     os._exit(1)
 
 patterns = sys.argv[1].split(',')
@@ -26,8 +26,6 @@ if len(sys.argv) > 2:
     if sys.argv[2] == 'full':
         tools = full_tools
 
-data_dir = 'data_param_new'
-
 gh = ['gh-e','gh-c1','gh-c2','gh-q']
 gh2 = ['gh-r','gh-s','gh-u','gh-u2']
 ms = ['ms-phi-h','ms-phi-r','ms-phi-s']
@@ -38,6 +36,10 @@ patts = gh + gh2 + ms + other + dexp
 if pattern not in patts:
     print('Unknown pattern. Exiting.')
     os._exit(1)
+
+data_dir = 'data_param_new'
+if len(sys.argv) > 3:
+    data_dir = sys.argv[3]:
 
 !mkdir -p {data_dir}
 
