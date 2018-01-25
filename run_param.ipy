@@ -73,7 +73,7 @@ if len(sys.argv) > 3:
 !mkdir -p {data_dir}
 
 for p in patterns:
-    r = param_runner(p,tools)
+    r = param_runner(p,tools,data_dir)
     print('=========================')
     print(p)
     if os.path.exists(r.res_file):

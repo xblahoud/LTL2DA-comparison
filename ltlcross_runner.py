@@ -557,7 +557,7 @@ class LtlcrossRunner(object):
                                include_fails=include_fails)), 1)
         return c
 
-def param_runner(name, tools):
+def param_runner(name, tools, data_dir='data_param_new'):
     cols=["states","transitions","acc","time","nondet_states"]
     r = LtlcrossRunner(tools,\
         res_filename='{}/{}.csv'.format(data_dir,name),\
