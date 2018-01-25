@@ -515,7 +515,7 @@ class LtlcrossRunner(object):
         self.values = self.values[~self.incorrect]
         self.exit_status[self.incorrect] = 'incorrect'
 
-    def index(self, form_id):
+    def index_for(self, form_id):
         return (form_id,self.form_of_id(form_id,False))
 
     def get_error_count(self,err_type='timeout'):
