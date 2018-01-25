@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+from ltlcross_runner import LtlcrossRunner
+from datetime import datetime
+import os
+import sys
+
+pattern = sys.argv[1]
+
+%run Tools.ipynb
+
+tools =ltl3dra_tools
+
+if len(sys.argv) > 2:
+    if sys.argv[2] == 'ltl3dra':
+        tools = ltl3dra_tools
+    if sys.argv[2] == 'full':
+        tools = full_tools
+
+data_dir = 'data_param_new'
+
+gh = ['gh-e','gh-c1','gh-c2','gh-q']
+gh2 = ['gh-r','gh-s','gh-u','gh-u2']
+ms = ['ms-phi-h','ms-phi-r','ms-phi-s']
+other = ['and-fg','or-fg','go-theta']
+dexp = ['kr-n','kr-nlogn']
+patts = gh + gh2 + ms + other + dexp
+
+if pattern not in patts:
+    print('Unknown pattern. Exiting.')
+    exit()
+
+!mkdir -p {data_dir}
+
+def param_runner(name, tools=ltl3dra_tools):
+    cols=["states","transitions","acc","time","nondet_states"]
+    r = LtlcrossRunner(tools,\
+        res_filename='{}/{}.csv'.format(data_dir,name),\
+        formula_files=['formulae/{}.ltl'.format(name)],\
+        cols=cols)
+    return r
+
+def run_parametric(self,pattern,timeout='300',verbose=True):
+    i = 1
+    if verbose:
+        print('{}: Working on {}'.format(datetime.now().strftime('[%d.%m.%Y %T]'),str(i)))
+    args = self.create_args(log_file=self.log_file, res_file=self.res_file,save_bogus=False,tool_subset=self.tools,forms=False,escape_tools=True,automata=False,timeout=timeout)
+    cmd = self.ltlcross_cmd(args)
+    !genltl {pattern}={i} | {cmd} 2>{self.log_file}
+    
+    # Get succesfull tools
+    self.parse_results()
+    s = self.values.states.iloc[len(self.values.states)-1]
+    next_tools = list(s.dropna().index)
+    
+    while next_tools:
+        i = i + 1
+        if verbose:
+            print('{}: Working on {}'.format(datetime.now().strftime('[%d.%m.%Y %T]'),str(i)))
+            print('\t{} tools:'.format(len(next_tools)))
+            print(next_tools)
+        args = self.create_args(log_file='>>'+self.log_file, res_file='">>'+self.res_file+'"',save_bogus=False,tool_subset=next_tools,forms=False,escape_tools=True,automata=False,timeout=timeout)
+        cmd = self.ltlcross_cmd(args)
+        !genltl {pattern}={i} | {cmd} 2>>{self.log_file}
+        
+        # Get succesfull tools
+        self.parse_results()
+        s = self.values.states.iloc[len(self.values.states)-1]
+        next_tools = list(s.dropna().index)
+        
+p = pattern
+r = param_runner(p,tools)
+print('=========================')
+print(p)
+if os.path.exists(r.res_file):
+    print('Already done')
+else:
+    run_parametric(r,'--'+p)
