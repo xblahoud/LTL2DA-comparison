@@ -4,52 +4,11 @@ run with
 $ ipython3 run_param.ipy -- bench_names [fragment] [data_dir]
 where bench_names is a comma separated list of benchmarks
 '''
-from ltlcross_runner import LtlcrossRunner
+from ltlcross_runner import LtlcrossRunner, param_runner
+from tools_hier import get_tools
 from datetime import datetime
 import os
 import sys
-
-if len(sys.argv) == 1:
-    print("You need to specify a pattern.")
-    print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment'] ['data_dir']")
-    os._exit(1)
-
-patterns = sys.argv[1].split(',')
-
-%run Tools.ipynb
-
-tools =ltl3dra_tools
-
-if len(sys.argv) > 2:
-    if sys.argv[2] == 'ltl3dra':
-        tools = ltl3dra_tools
-    if sys.argv[2] == 'full':
-        tools = full_tools
-
-gh = ['gh-e','gh-c1','gh-c2','gh-q']
-gh2 = ['gh-r','gh-s','gh-u','gh-u2']
-ms = ['ms-phi-h','ms-phi-r','ms-phi-s']
-other = ['and-fg','or-fg','go-theta']
-dexp = ['kr-n','kr-nlogn']
-patts = gh + gh2 + ms + other + dexp
-
-if pattern not in patts:
-    print('Unknown pattern. Exiting.')
-    os._exit(1)
-
-data_dir = 'data_param_new'
-if len(sys.argv) > 3:
-    data_dir = sys.argv[3]:
-
-!mkdir -p {data_dir}
-
-def param_runner(name, tools=ltl3dra_tools):
-    cols=["states","transitions","acc","time","nondet_states"]
-    r = LtlcrossRunner(tools,\
-        res_filename='{}/{}.csv'.format(data_dir,name),\
-        formula_files=['formulae/{}.ltl'.format(name)],\
-        cols=cols)
-    return r
 
 def run_parametric(self,pattern,timeout='300',verbose=True):
     i = 1
@@ -78,8 +37,42 @@ def run_parametric(self,pattern,timeout='300',verbose=True):
         self.parse_results()
         s = self.values.states.iloc[len(self.values.states)-1]
         next_tools = list(s.dropna().index)
-        
-for p in patterns
+    
+if len(sys.argv) == 1:
+    print("You need to specify a pattern.")
+    print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment'] ['data_dir']")
+    os._exit(1)
+
+fragment = 'full'
+if len(sys.argv) > 2:
+    fragment = sys.argv[2]
+
+tools = get_tools(fragment)
+
+gh = ['gh-e','gh-c1','gh-c2','gh-q']
+gh2 = ['gh-r','gh-s','gh-u','gh-u2']
+ms = ['ms-phi-h','ms-phi-r','ms-phi-s']
+other = ['and-fg','or-fg','go-theta']
+dexp = ['kr-n','kr-nlogn']
+patts = gh + gh2 + ms + other + dexp
+
+patterns = sys.argv[1].split(',')
+
+if patterns == ['all']:
+    patterns = patts
+else:
+    for p in patterns:
+        if p not in patts + ['all']:
+            print('Unknown pattern {}. Exiting.'.format(p))
+            exit(1)
+
+data_dir = 'data_param_new'
+if len(sys.argv) > 3:
+    data_dir = sys.argv[3]
+
+!mkdir -p {data_dir}
+
+for p in patterns:
     r = param_runner(p,tools)
     print('=========================')
     print(p)

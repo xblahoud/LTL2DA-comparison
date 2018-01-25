@@ -556,3 +556,11 @@ class LtlcrossRunner(object):
                       len(self.better_than(x.name,tool,props,
                                include_fails=include_fails)), 1)
         return c
+
+def param_runner(name, tools):
+    cols=["states","transitions","acc","time","nondet_states"]
+    r = LtlcrossRunner(tools,\
+        res_filename='{}/{}.csv'.format(data_dir,name),\
+        formula_files=['formulae/{}.ltl'.format(name)],\
+        cols=cols)
+    return r
