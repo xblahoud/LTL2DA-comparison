@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 '''Runs a parametric benchmark specified as a first argument.
 run with
-$ ipython3 run_param.ipy -- 'bench_name' ['fragment']
+$ ipython3 run_param.ipy -- 'bench_names' ['fragment']
+where bench_names is a comma separated list of benchmarks
 '''
 from ltlcross_runner import LtlcrossRunner
 from datetime import datetime
@@ -10,10 +11,10 @@ import sys
 
 if len(sys.argv) == 1:
     print("You need to specify a pattern.")
-    print("Usage: ipython3 run_param.ipy -- 'bench_name' ['fragment']")
+    print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment']")
     os._exit(1)
 
-pattern = sys.argv[1]
+patterns = sys.argv[1].split(',')
 
 %run Tools.ipynb
 
@@ -76,11 +77,11 @@ def run_parametric(self,pattern,timeout='300',verbose=True):
         s = self.values.states.iloc[len(self.values.states)-1]
         next_tools = list(s.dropna().index)
         
-p = pattern
-r = param_runner(p,tools)
-print('=========================')
-print(p)
-if os.path.exists(r.res_file):
-    print('Already done')
-else:
-    run_parametric(r,'--'+p)
+for p in patterns
+    r = param_runner(p,tools)
+    print('=========================')
+    print(p)
+    if os.path.exists(r.res_file):
+        print('Already done')
+    else:
+        run_parametric(r,'--'+p)
