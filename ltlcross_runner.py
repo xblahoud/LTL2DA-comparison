@@ -17,6 +17,14 @@ def bogus_to_lcr(form):
     return subprocess.check_output(["ltlfilt"] + args, universal_newlines=True).strip()
 
 def parse_check_log(log_f):
+    """Parses a given log file and locates cases where
+    sanity checks found some error.
+
+    Returns:
+    bugs: a dict: ``form_id``->``list of error lines``
+    bogus_forms: a dict: ``form_id``->``form``
+    tools: a dict: ``tool_id``->``command``
+    """
     log = open(log_f,'r')
     bugs = {}
     bogus_forms = {}
