@@ -518,7 +518,7 @@ class LtlcrossRunner(object):
     def index_for(self, form_id):
         return (form_id,self.form_of_id(form_id,False))
 
-    def get_error_count(self,err_type='timeout'):
+    def get_error_count(self,err_type='timeout',drop_zeros=True):
         """Returns a Series with total number of er_type errors for
         each tool.
 
@@ -528,6 +528,8 @@ class LtlcrossRunner(object):
                                  `incorrect`, `crash`, or
                                  'no output'
                   Type of error we seek
+        drop_zeros: Boolean (default True)
+                    If true, rows with zeros are removed
         """
         if err_type not in ['timeout', 'parse error',
                             'incorrect', 'crash',
@@ -537,8 +539,12 @@ class LtlcrossRunner(object):
         if err_type == 'crash':
             c1 = self.exit_status == 'exit code'
             c2 = self.exit_status == 'signal'
-            return (c1 | c2).sum()
-        return (self.exit_status == err_type).sum()
+            res = (c1 | c2).sum()
+        else:
+            res = (self.exit_status == err_type).sum()
+        if drop_zeros:
+            return res.iloc[res.nonzero()]
+        return res
 
     def cross_compare(self,tools=None,props=['states','acc'],
                       include_fails=True):
