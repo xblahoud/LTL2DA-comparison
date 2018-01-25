@@ -81,5 +81,14 @@ def get_tools(fragment='full'):
         tools.update(ltl3dra)
     return tools
 
+def mint(s):
+    return("\\mintinline{bash}{"+s+"}")
+
+def latex(tools, decompose=True):
+    for name, cmd in sorted(tools.items()):
+        if decompose:
+            name = ' & '.join(name.split('/'))
+        print("    & {}\n    & {}\\\\".format(name,mint(cmd)))
+
 full_tools = get_tools()
 ltl3dra_tools = get_tools('ltl-gux')
