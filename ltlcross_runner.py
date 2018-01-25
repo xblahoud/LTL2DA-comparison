@@ -295,13 +295,15 @@ class LtlcrossRunner(object):
         table.axes[1].set_names(['column','tool'],inplace=True)
 
         # Create separate tables for automata
-        automata = table[['automaton']]
+        automata = None
+        if 'automaton' in table.columns.levels[0]:
+            automata = table[['automaton']]
 
-        # Removes formula column from the index
-        automata.index = automata.index.levels[0]
+            # Removes formula column from the index
+            automata.index = automata.index.levels[0]
 
-        # Removes `automata` from column names -- flatten the index
-        automata.columns = automata.columns.levels[1]
+            # Removes `automata` from column names -- flatten the index
+            automata.columns = automata.columns.levels[1]
         form = form.set_index(['form_id', 'formula'])
 
         # Store incorrect and exit_status information separately
@@ -315,7 +317,8 @@ class LtlcrossRunner(object):
         self.form = form
         self.values = values.sort_index(axis=1,level=['column','tool'])
         # self.compute_best("Minimum")
-        self.automata = automata
+        if automata is not None:
+            self.automata = automata
 
     def compute_best(self, tools=None, colname="Minimum"):
         """Computes minimum values over tools in ``tools`` for all
