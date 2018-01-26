@@ -1,0 +1,61 @@
+'''Runs ltlcross runners on '''
+
+import os
+import sys
+from datetime import datetime
+from ltlcross_runner import LtlcrossRunner
+from tools_hier import get_tools
+
+if len(sys.argv) == 1:
+    print("You need to specify a runner names (and formula file).")
+    print("Usage: ipython3 run_runners.ipy -- 'runner1,runner2,...' [check/no] ['fragment'] ['data_dir']")
+    os._exit(1)
+
+if len(sys.argv) > 2 and sys.argv[2] == 'check':
+    check = True
+    data_dir = 'data_check'
+else:
+    check = False
+    data_dir = 'data'
+    
+fragment = 'ltl-gux'
+
+if len(sys.argv) > 3:
+    fragment = sys.argv[3]
+
+if len(sys.argv) > 4:
+    data_dir = fragment = sys.argv[4]
+    
+!mkdir -p {data_dir}
+    
+todo = sys.argv[1].split(',')
+
+all_full = ['literature_full','random_full']
+all_ltlgux = ['random_ltl3dra','literature_ltl3dra','random_fg']
+
+if todo == ['all_full']:
+    todo = all_full
+    fragment = 'full'
+if todo == ['all_ltlgux']:
+    todo = all_ltlgux
+    fragment = 'ltl-gux'
+
+tools = get_tools(fragment)
+
+runners = {}
+cols=["states","transitions","acc","time","nondet_states"]
+for name in todo:
+    runners[name] = LtlcrossRunner(tools,\
+                    res_filename='{}/{}.csv'.format(data_dir,name),\
+                    formula_files=['formulae/{}.ltl'.format(name)],\
+                    cols=cols)
+
+log_f = '{}/{}.{}.log'.format(data_dir,os.uname()[1],os.getpid())
+with open(log_f,'w') as log:   
+    for name,r in runners.items():
+        print('{}: Working on {}'.format(datetime.now().strftime('[%d.%m.%Y %T]'),name),file=log)
+        print('=========================',file=log,flush=True)
+        if os.path.exists(r.log_file):
+            print('Already done',file=log)
+        else:
+            r.run_ltlcross(timeout='120',check=check)
