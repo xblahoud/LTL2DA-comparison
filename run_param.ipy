@@ -14,8 +14,8 @@ def run_parametric(self,pattern,timeout='300',log=sys.stdout,verbose=True):
     i = 1
     if verbose:
         print('{}: Working on {}'.format(datetime.now().strftime('[%d.%m.%Y %T]'),str(i)),file=log)
-        print('\t{} tools:'.format(len(self.res_file)),file=log)
-        print(self.res_file,file=log,flush=True)
+        print('\t{} tools:'.format(len(self.tools)),file=log)
+        print(self.tools.keys(),file=log,flush=True)
     args = self.create_args(log_file=self.log_file, res_file=self.res_file,save_bogus=False,tool_subset=self.tools,forms=False,escape_tools=True,automata=False,timeout=timeout)
     cmd = self.ltlcross_cmd(args)
     !genltl {pattern}={i} | {cmd} 2>{self.log_file}
@@ -39,7 +39,7 @@ def run_parametric(self,pattern,timeout='300',log=sys.stdout,verbose=True):
         self.parse_results()
         s = self.values.states.iloc[len(self.values.states)-1]
         next_tools = list(s.dropna().index)
-    
+
 if len(sys.argv) == 1:
     print("You need to specify a pattern.")
     print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment'] ['data_dir']")
