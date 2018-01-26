@@ -77,7 +77,7 @@ def get_tools(fragment='full'):
     for tool in determinization_tools:
         tools.update(det_pair((tool[0],tool[1],tool[4]),ltl_to_ba(tool[2]),tool[3]))
     
-    if fragment == 'ltl-gux':
+    if fragment == 'ltl-gux' or fragment == 'ltlgux':
         tools.update(ltl3dra)
     return tools
 
