@@ -208,6 +208,8 @@ class LtlcrossRunner(object):
             args.append('--save-bogus={}_bogus.ltl'.format(res_file[:-4]))
         if not check:
             args.append('--no-checks')
+        #else:
+        #    args.append('--reference={ref_Spot}ltl2tgba -H %f')
         args.append('--products=0')
         args.append('--csv='+res_file)
         return args
