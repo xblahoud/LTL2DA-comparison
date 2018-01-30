@@ -504,7 +504,7 @@ class LtlcrossRunner(object):
         csv.to_csv(output_file,index=False)
 
         # Mark the information into self.incorrect
-        self.incorrect.loc[self.index(form_id)][tool] = True
+        self.incorrect.loc[self.index_for(form_id)][tool] = True
 
     def na_incorrect(self):
         """Marks values for flawed automata as N/A. This causes
