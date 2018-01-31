@@ -42,7 +42,6 @@ def run_parametric(self,pattern,timeout='300',log=sys.stdout,verbose=True):
 
 if len(sys.argv) == 1:
     print("You need to specify a pattern.")
-    print("Usage: ipython3 run_param.ipy -- 'bench_name1,bench_name2,...' ['fragment'] ['data_dir']")
     os._exit(1)
 
 fragment = 'full'
