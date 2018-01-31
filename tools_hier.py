@@ -92,3 +92,7 @@ def latex(tools, decompose=True):
 
 full_tools = get_tools()
 ltl3dra_tools = get_tools('ltl-gux')
+direct = ['LTL3DRA','R3','R4']
+safra = ['ltl2dstar','ltl2dstar(NBA)','Spot','ltl2tgba']
+ltl2dpa = ['ltl2dpa']
+tool_order = direct + safra + ltl2dpa
