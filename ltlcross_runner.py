@@ -552,6 +552,8 @@ class LtlcrossRunner(object):
                       include_fails=True, total=True,
                       include_other=True):
         def count_better(tool1,tool2):
+            if tool1 == tool2:
+                return float('nan')
             try:
                 return len(self.better_than(tool1,tool2,props,
                                include_fails=include_fails))
