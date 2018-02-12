@@ -20,6 +20,9 @@ def split_cols(res,symbol='/',axis=1,names=None,repl_empty=True):
     elif axis == 0:
         source = tmp.index
         dest = tmp.index
+    ## To handle victories in cross-comparisons correctly
+    source = ['{}//'.format(t) if t == 'V' else t for
+                      t in source]
     tuples = to_tuples(source,symbol)
     if repl_empty:
         tuples = [tuple(t[i] if t[i] != '' else '-' for 
