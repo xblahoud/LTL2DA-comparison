@@ -549,14 +549,25 @@ class LtlcrossRunner(object):
         return res
 
     def cross_compare(self,tools=None,props=['states','acc'],
-                      include_fails=True):
+                      include_fails=True, total=True,
+                      include_other=True):
+        def count_better(tool1,tool2):
+            try:
+                return len(self.better_than(tool1,tool2,props,
+                               include_fails=include_fails))
+            except ValueError as e:
+                if include_other:
+                    return float('nan')
+                else:
+                    raise e
         if tools is None:
             tools = self.tools.keys()
         c = pd.DataFrame(index=tools, columns=tools).fillna(0)
         for tool in tools:
             c[tool] = pd.DataFrame(c[tool]).apply(lambda x:
-                      len(self.better_than(x.name,tool,props,
-                               include_fails=include_fails)), 1)
+                      count_better(x.name,tool), 1)
+        if total:
+            c['V'] = c.sum(axis=1)
         return c
 
 def param_runner(name, tools, data_dir='data_param_new'):
