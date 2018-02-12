@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os.path
 import re
+import math
 import spot
 from IPython.display import SVG
 from datetime import datetime
@@ -321,6 +322,34 @@ class LtlcrossRunner(object):
         # self.compute_best("Minimum")
         if automata is not None:
             self.automata = automata
+
+    def compute_sbacc(self,col='states'):
+        def get_sbacc(aut):
+            if isinstance(aut, float) and math.isnan(aut):
+                return None
+            a = spot.automata(aut+'\n')
+            aut = next(a)
+            aut = spot.sbacc(aut)
+            if col == 'states':
+                return aut.num_states()
+            if col == 'acc':
+                return aut.num_sets()
+
+        df = self.automata.copy()
+
+        # Recreate the same index as for other cols
+        n_i = [(l, self.form_of_id(l,False)) for l in df.index]
+        df.index = pd.MultiIndex.from_tuples(n_i)
+        df.index.names=['form_id','formula']
+        # Recreate the same columns hierarchy
+        df = df.T
+        df['column'] = 'sb_{}'.format(col)
+        df = df.set_index(['column'],append=True)
+        df = df.T.swaplevel(axis=1)
+
+        # Compute the requested values and add them to others
+        df = df.applymap(get_sbacc)
+        self.values = self.values.join(df)
 
     def compute_best(self, tools=None, colname="Minimum"):
         """Computes minimum values over tools in ``tools`` for all
