@@ -27,9 +27,9 @@ def split_cols(res,symbol='/',axis=1,names=None,repl_empty=True):
     if repl_empty:
         tuples = [tuple(t[i] if t[i] != '' else '-' for 
                         i in range(len(t))) for t in tuples]
-    new = pd.MultiIndex.from_tuples(tuples,sortorder=0,names=names)
+    new = pd.MultiIndex.from_tuples(tuples,sortorder=None,names=names)
     if axis == 1:
         tmp.columns = new
     elif axis == 0:
         tmp.index = new
-    return tmp.sort_index(axis=axis,level=[0],sort_remaining=False)
+    return tmp #tmp.sort_index(axis=axis,level=[0],sort_remaining=False)

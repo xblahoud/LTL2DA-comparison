@@ -96,3 +96,4 @@ direct = ['LTL3DRA','R3','R4']
 safra = ['ltl2dstar','ltl2dstar(NBA)','Spot','ltl2tgba']
 ltl2dpa = ['ltl2dpa']
 tool_order = direct + safra + ltl2dpa
+ba_order = ['LTL3BA', 'LTL3BAd', 'LTL3TELA', 'Spot', '', 'ldba', 'Rab']
