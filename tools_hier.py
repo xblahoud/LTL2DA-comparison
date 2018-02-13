@@ -95,5 +95,22 @@ ltl3dra_tools = get_tools('ltl-gux')
 direct = ['LTL3DRA','R3','R4']
 safra = ['ltl2dstar','ltl2dstar(NBA)','Spot','ltl2tgba']
 ltl2dpa = ['ltl2dpa']
-tool_order = direct + safra + ltl2dpa
-ba_order = ['LTL3BA', 'LTL3BAd', 'LTL3TELA', 'Spot', '', 'ldba', 'Rab']
+mt_ord = direct + safra + ltl2dpa
+it_ord = ['LTL3BA', 'LTL3BAd', 'LTL3TELA', 'Spot',
+          '', 'ldba', 'Rab']
+acc_ord = ['DTGRA','DSRA',
+           'TGBA.DTPA','NBA.DTPA',
+           'DTELA.DTPA','NBA.DSRA',
+           'DPA','DTPA']
+
+def sort_tools(fragment='ltl-gux'):
+    tool_order = []
+    for mt in mt_ord:
+        for it in it_ord:
+            for acc in acc_ord:
+                for t in get_tools(fragment).keys():
+                    if t == '{}/{}/{}'.format(mt,it,acc):
+                        tool_order.append(t)
+    return tool_order
+
+tool_order = sort_tools('ltl-gux')
