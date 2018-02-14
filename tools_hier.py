@@ -40,7 +40,7 @@ def det_pair(det_tool, ltl_to_ba, dstar=False):
     }
     return tools
 
-def get_tools(fragment='full'):
+def get_tools(fragment='ltl-gux'):
     rab4 = 'Rab4/bin/'
     sacc = ' | autfilt --sbacc > %O'
     rabinizers = {
@@ -65,7 +65,7 @@ def get_tools(fragment='full'):
     determinization_tools = [
         ('Spot','autfilt -DG', False, False, 'TP'),
         ('Spot','autfilt -DG', True, False, 'TP'),
-        ('ltl2dstar','ltl2dstar -H', False, True, 'SR'),
+        ('ltl2dstar','ltl2dstar -H', False, True, 'DSR'),
         ('ltl2dstar(NBA)','ltl2dstar -B -H - -', False, False, 'SR')
     ]
     
@@ -90,7 +90,7 @@ def latex(tools, decompose=True):
             name = ' & '.join(name.split('/'))
         print("    & {}\n    & {}\\\\".format(name,mint(cmd)))
 
-full_tools = get_tools()
+full_tools = get_tools('full')
 ltl3dra_tools = get_tools('ltl-gux')
 direct = ['LTL3DRA','R3','R4']
 safra = ['ltl2dstar','ltl2dstar(NBA)','Spot','ltl2tgba']
