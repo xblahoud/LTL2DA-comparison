@@ -65,7 +65,7 @@ def get_tools(fragment='ltl-gux'):
     determinization_tools = [
         ('Spot','autfilt -DG', False, False, 'TP'),
         ('Spot','autfilt -DG', True, False, 'TP'),
-        ('ltl2dstar','ltl2dstar -H', False, True, 'DSR'),
+        ('ltl2dstar','ltl2dstar -H', False, True, 'SR'),
         ('ltl2dstar(NBA)','ltl2dstar -B -H - -', False, False, 'SR')
     ]
     
