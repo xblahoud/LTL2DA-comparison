@@ -25,7 +25,7 @@ def split_cols(res,symbol='/',axis=1,names=None,repl_empty=True):
                       t in source]
     tuples = to_tuples(source,symbol)
     if repl_empty:
-        tuples = [tuple(t[i] if t[i] != '' else '-' for 
+        tuples = [tuple(t[i] if t[i] != '' else '---' for
                         i in range(len(t))) for t in tuples]
     new = pd.MultiIndex.from_tuples(tuples,sortorder=None,names=names)
     if axis == 1:
