@@ -3,7 +3,7 @@ def ltl_to_ba(tgba=False):
     spot_o = '' if tgba else ' -B'
     ltl3ba_n = 'LTL3BA'
     ltl3ba_o = ' -H2' if tgba else ' -H3' 
-    ba_suff = '/TGBA' if tgba else '/NBA'
+    ba_suff = '/TGB' if tgba else '/SB'
     tools = {
         '{}{}'.format(spot_n,ba_suff) :  \
             'ltl2tgba{} -f %f'.format(spot_o),
@@ -13,7 +13,7 @@ def ltl_to_ba(tgba=False):
             'ltl3ba -M1{} -f %s'.format(ltl3ba_o),
     }
     if tgba:
-        tools['LTL3TELA/DTELA'] = 'ltl3tela -f %f'
+        tools['LTL3TELA/TEL'] = 'ltl3tela -f %f'
     return tools
 
 def det_pair(det_tool, ltl_to_ba, dstar=False):
@@ -44,29 +44,29 @@ def get_tools(fragment='full'):
     rab4 = 'Rab4/bin/'
     sacc = ' | autfilt --sbacc > %O'
     rabinizers = {
-        "R3//DTGRA": 'java -jar Rab3/rabinizer3.1.jar -silent -format=hoa -out=std %[eiRWM]f > %O',
-        "R3//DSRA" : 'java -jar Rab3/rabinizer3.1.jar -silent -format=hoa -out=std -auto=sr %[eiRWM]f > %O',
-        "R4//DTGRA": rab4 + 'ltl2dgra %f > %O',
-        "R4//DSRA" : rab4 + 'ltl2dra %f' + sacc
+        "R3//TGR": 'java -jar Rab3/rabinizer3.1.jar -silent -format=hoa -out=std %[eiRWM]f > %O',
+        "R3//SR" : 'java -jar Rab3/rabinizer3.1.jar -silent -format=hoa -out=std -auto=sr %[eiRWM]f > %O',
+        "R4//TGR": rab4 + 'ltl2dgra %f > %O',
+        "R4//SR" : rab4 + 'ltl2dra %f' + sacc
     }
     ltl3dra = {
-        "LTL3DRA//DTGRA" : 'ltl3dra -f %s > %O',
-        "LTL3DRA//DSRA" : 'ltl3dra -H3 -f %s > %O'
+        "LTL3DRA//TGR" : 'ltl3dra -f %s > %O',
+        "LTL3DRA//SR" : 'ltl3dra -H3 -f %s > %O'
     }
     ltl2tgba = {
-        "ltl2tgba//DPA"      : 'ltl2tgba -DG -f %f > %O',
+        "ltl2tgba//TP"      : 'ltl2tgba -DG -f %f > %O',
     }
     parity = {
-        "ltl2dpa/ldba/DTPA"      : rab4 + 'ltl2dpa --mode=ldba %f > %O',
-        "ltl2dpa/Rab/DTPA"       : rab4 + 'ltl2dpa --mode=rabinizer %f > %O',
+        "ltl2dpa/ldba/TP"      : rab4 + 'ltl2dpa --mode=ldba %f > %O',
+        "ltl2dpa/Rab/TP"       : rab4 + 'ltl2dpa --mode=rabinizer %f > %O',
     }
     
     # name, command, generalized, dstar_interface, acc
     determinization_tools = [
-        ('Spot','autfilt -DG', False, False, 'DTPA'),
-        ('Spot','autfilt -DG', True, False, 'DTPA'),
-        ('ltl2dstar','ltl2dstar -H', False, True, 'DSRA'),
-        ('ltl2dstar(NBA)','ltl2dstar -B -H - -', False, False, 'DSRA')
+        ('Spot','autfilt -DG', False, False, 'TP'),
+        ('Spot','autfilt -DG', True, False, 'TP'),
+        ('ltl2dstar','ltl2dstar -H', False, True, 'SR'),
+        ('ltl2dstar(NBA)','ltl2dstar -B -H - -', False, False, 'SR')
     ]
     
     tools = {}
@@ -98,10 +98,10 @@ ltl2dpa = ['ltl2dpa']
 mt_ord = direct + safra + ltl2dpa
 it_ord = ['LTL3BA', 'LTL3BAd', 'LTL3TELA', 'Spot',
           '', 'ldba', 'Rab']
-acc_ord = ['DTGRA','DSRA',
-           'TGBA.DTPA','NBA.DTPA',
-           'DTELA.DTPA','NBA.DSRA',
-           'DPA','DTPA']
+acc_ord = ['TGR','SR',
+           'TGB.TP','SB.TP','TEL.TP',
+           'SB.SR',
+           'TP']
 
 def sort_tools(fragment='ltl-gux'):
     tool_order = []
