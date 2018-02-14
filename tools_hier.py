@@ -114,3 +114,30 @@ def sort_tools(fragment='ltl-gux'):
     return tool_order
 
 tool_order = sort_tools('ltl-gux')
+
+if __name__ == '__main__':
+    from evaluation_utils import to_tuples
+
+    def mint(s):
+        return("\\mintinline{bash}{"+s+"}")
+
+    order = sort_tools()
+    tools = get_tools()
+    print('''\\toprule
+type & name & ltlcross command \\\\''')
+    for way, w_tools in \
+        zip(['direct', 'Safra', 'other'],
+            [direct, safra, ltl2dpa]):
+        #get count for multirow
+        c = 0
+        for t in order:
+            if to_tuples([t])[0][0] in w_tools:
+                c += 1
+        print('\\midrule')
+        print('\\multirow{{{}}}{{*}}{{{}}}'.format(c,way))
+        # print tools
+        for t in order:
+            if to_tuples([t])[0][0] in w_tools:
+                print('  & {}\n  & {}\\\\\n%'.\
+                      format(t,mint(tools[t])))
+    print('\\bottomrule\n')
