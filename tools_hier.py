@@ -42,7 +42,7 @@ def det_pair(det_tool, ltl_to_ba, dstar=False):
 
 def get_tools(fragment='full'):
     rab4 = 'Rab4/bin/'
-    sacc = ' | autfilt -S > %O'
+    sacc = ' | autfilt --sbacc > %O'
     rabinizers = {
         "R3//DTGRA": 'java -jar Rab3/rabinizer3.1.jar -silent -format=hoa -out=std %[eiRWM]f > %O',
         "R3//DSRA" : 'java -jar Rab3/rabinizer3.1.jar -silent -format=hoa -out=std -auto=sr %[eiRWM]f > %O',
