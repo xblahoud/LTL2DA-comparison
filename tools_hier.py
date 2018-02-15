@@ -123,7 +123,8 @@ if __name__ == '__main__':
 
     order = sort_tools()
     tools = get_tools()
-    print('''\\toprule
+    print('''\\begin{tabular}{lll}
+\\toprule
 type & name & ltlcross command \\\\''')
     for way, w_tools in \
         zip(['direct', 'Safra', 'other'],
@@ -131,13 +132,26 @@ type & name & ltlcross command \\\\''')
         #get count for multirow
         c = 0
         for t in order:
-            if to_tuples([t])[0][0] in w_tools:
+            main = to_tuples([t])[0][0]
+            if main in w_tools:
                 c += 1
+                if main == 'R3':
+                    c += 1
         print('\\midrule')
         print('\\multirow{{{}}}{{*}}{{{}}}'.format(c,way))
         # print tools
         for t in order:
-            if to_tuples([t])[0][0] in w_tools:
-                print('  & {}\n  & {}\\\\\n%'.\
+            main = to_tuples([t])[0][0]
+            if main in w_tools:
+                if main != 'R3':
+                    print('  & {}\n  & {}\\\\\n%'.\
                       format(t,mint(tools[t])))
-    print('\\bottomrule\n')
+                else:
+                    cmd = tools[t]
+                    first, second = cmd.split('-f')
+                    second = '-f' + second
+                    first += '\\ '
+                    print('''  & {}\n  & {}\\\\
+ & & {}\\\\
+ %'''.format(t,mint(first),mint(second)))
+    print('\\bottomrule\n\\end{tabular}\n')
