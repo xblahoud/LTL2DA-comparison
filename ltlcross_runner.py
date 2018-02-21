@@ -364,6 +364,8 @@ class LtlcrossRunner(object):
         """
         if tools is None:
             tools = list(self.tools.keys())
+        else:
+            tools = [t for t in tools if t in self.tools.keys()]
         self.mins.append(colname)
         for col in self.cols:
             self.values[col, colname] = self.values[col][tools].min(axis=1)
@@ -600,6 +602,24 @@ class LtlcrossRunner(object):
         if total:
             c['V'] = c.sum(axis=1)
         return c
+
+    def min_counts(self, tools=None, restrict_tools=False, unique_only=False, col='states',min_name='min(count)'):
+        if tools is None:
+            tools = list(self.tools.keys())
+        else:
+            tools = [t for t in tools if
+                     t in self.tools.keys() or
+                     t in self.mins]
+        min_tools = tools if restrict_tools else list(self.tools.keys())
+        self.compute_best(tools=min_tools, colname=min_name)
+        s = self.values[col]
+        df = s.loc(axis=1)[tools+[min_name]]
+        is_min = lambda x: x[x == x[min_name]]
+        best_t_count = df.apply(is_min, axis=1).count(axis=1)
+        choose = (df[best_t_count == 2]) if unique_only else df
+        choose = choose.index
+        min_counts = df.loc[choose].apply(is_min,axis=1).count()
+        return pd.DataFrame(min_counts[min_counts.index != min_name])
 
 def param_runner(name, tools, data_dir='data_param_new'):
     cols=["states","transitions","acc","time","nondet_states"]
