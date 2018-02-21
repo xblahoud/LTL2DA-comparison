@@ -365,7 +365,8 @@ class LtlcrossRunner(object):
         if tools is None:
             tools = list(self.tools.keys())
         else:
-            tools = [t for t in tools if t in self.tools.keys()]
+            tools = [t for t in tools if t in self.tools.keys()
+                    or t in self.mins]
         self.mins.append(colname)
         for col in self.cols:
             self.values[col, colname] = self.values[col][tools].min(axis=1)
