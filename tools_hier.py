@@ -115,6 +115,11 @@ def sort_tools(fragment='ltl-gux'):
 
 tool_order = sort_tools('ltl-gux')
 
+def fix_tool(tool):
+    tool = tool.replace('R3','Rabinizer 3').replace('R4','Rabinizer 4')
+    tool = tool.replace('TEL.TP','TEL.TEL')
+    return tool
+
 if __name__ == '__main__':
     from evaluation_utils import to_tuples
 
@@ -145,7 +150,7 @@ type & name & ltlcross command \\\\''')
             if main in w_tools:
                 if main != 'R3':
                     print('  & {}\n  & {}\\\\\n%'.\
-                      format(t,mint(tools[t])))
+                      format(fix_tool(t),mint(tools[t])))
                 else:
                     cmd = tools[t]
                     first, second = cmd.split('-f')
@@ -153,5 +158,5 @@ type & name & ltlcross command \\\\''')
                     first += '\\ '
                     print('''  & {}\n  & {}\\\\
  & & {}\\\\
- %'''.format(t,mint(first),mint(second)))
+ %'''.format(fix_tool(t),mint(first),mint(second)))
     print('\\bottomrule\n\\end{tabular}\n')
