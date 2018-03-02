@@ -168,7 +168,7 @@ class LtlcrossRunner(object):
         self.tools = tools
         self.mins = []
         self.f_files = formula_files
-        self.cols = cols
+        self.cols = cols.copy()
         self.automata = None
         self.values = None
         self.form = None
@@ -344,6 +344,7 @@ class LtlcrossRunner(object):
         # Recreate the same columns hierarchy
         df = df.T
         df['column'] = 'sb_{}'.format(col)
+        self.cols.append('sb_{}'.format(col))
         df = df.set_index(['column'],append=True)
         df = df.T.swaplevel(axis=1)
 
@@ -613,7 +614,7 @@ class LtlcrossRunner(object):
                      t in self.mins]
         min_tools = tools if restrict_tools else list(self.tools.keys())
         self.compute_best(tools=min_tools, colname=min_name)
-        s = self.values[col]
+        s = self.values.loc(axis=1)[col]
         df = s.loc(axis=1)[tools+[min_name]]
         is_min = lambda x: x[x == x[min_name]]
         best_t_count = df.apply(is_min, axis=1).count(axis=1)
