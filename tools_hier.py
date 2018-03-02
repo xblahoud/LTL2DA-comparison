@@ -115,9 +115,16 @@ def sort_tools(fragment='ltl-gux'):
 
 tool_order = sort_tools('ltl-gux')
 
-def fix_tool(tool):
+def fix_tool(tool,fill_lines=True,fill='\\hfill'):
+    tool = tool.replace('//','//')
     tool = tool.replace('R3','Rabinizer 3').replace('R4','Rabinizer 4')
     tool = tool.replace('TEL.TP','TEL.TEL')
+    if fill_lines:
+        split = tool.split('/')
+        widths = [6.1,4.6,3.8]
+        if len(split) == 3:
+            tmp = ['\\parbox[b]{{{}em}}{{{}{}}}'.format(widths[i],split[i],fill) for i in range(len(split))]
+            tool = ''.join(tmp)
     return tool
 
 if __name__ == '__main__':
@@ -128,9 +135,11 @@ if __name__ == '__main__':
 
     order = sort_tools()
     tools = get_tools()
-    print('''\\begin{tabular}{lll}
+    print('''\\begin{{tabular}}{{lll}}
 \\toprule
-type & name & ltlcross command \\\\''')
+type & {} & ltlcross command \\\\'''.format(
+    fix_tool('name/interm./acc')
+    ))
     for way, w_tools in \
         zip(['direct', 'Safra', 'other'],
             [direct, safra, ltl2dpa]):
