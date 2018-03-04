@@ -623,7 +623,7 @@ class LtlcrossRunner(object):
         min_counts = df.loc[choose].apply(is_min,axis=1).count()
         return pd.DataFrame(min_counts[min_counts.index != min_name])
 
-def param_runner(name, tools, data_dir='data_param_new'):
+def param_runner(name, tools, data_dir='data_param'):
     cols=["states","transitions","acc","time","nondet_states"]
     r = LtlcrossRunner(tools,\
         res_filename='{}/{}.csv'.format(data_dir,name),\

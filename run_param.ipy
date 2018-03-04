@@ -44,11 +44,9 @@ if len(sys.argv) == 1:
     print("You need to specify a pattern.")
     os._exit(1)
 
-fragment = 'full'
+fragment = None
 if len(sys.argv) > 2:
     fragment = sys.argv[2]
-
-tools = get_tools(fragment)
 
 gh = ['gh-e','gh-c1','gh-c2','gh-q']
 gh2 = ['gh-r','gh-s','gh-u','gh-u2']
@@ -56,6 +54,10 @@ ms = ['ms-phi-h','ms-phi-r','ms-phi-s']
 other = ['and-fg','or-fg','go-theta']
 dexp = ['kr-n','kr-nlogn']
 patts = gh + gh2 + ms + other + dexp
+ltlgux = ['gh-e','gh-c1','gh-c2','gh-q','gh-r',
+          'gh-s','gh-u','gh-u2','ms-phi-r',
+          'ms-phi-s','and-fg','or-fg','go-theta']
+full = ['kr-n','kr-nlogn','ms-phi-h']
 
 patterns = sys.argv[1].split(',')
 
@@ -76,6 +78,12 @@ if len(sys.argv) > 3:
 log_f = '{}/{}.{}.log'.format(data_dir,os.uname()[1],os.getpid())
 with open(log_f,'w') as log:
     for p in patterns:
+        if fragment is not None:
+            tools = get_tools(fragment)
+        elif p in full:
+            tools = get_tools('full')
+        elif p in ltlgux:
+            tools = get_tools('ltl-gux')
         r = param_runner(p,tools,data_dir)
         print('=========================',file=log)
         print(p,file=log,flush=True)
