@@ -125,8 +125,10 @@ def fix_tool(tool,fill_lines=True,fill='\\hfill'):
     if fill_lines:
         split = tool.split('/')
         widths = [6.1,4.6,3.8]
+        flush = ['\\raggedright','\\centering','\\raggedleft']
         if len(split) == 3:
-            tmp = ['\\parbox[b]{{{}em}}{{{}{}}}'.format(widths[i],split[i],fill) for i in range(len(split))]
+            tmp = ['\\parbox[b]{{{}em}}{{{} {}{}}}'.format(widths[i],
+                    flush[i],split[i],fill) for i in range(len(split))]
             tool = ''.join(tmp)
     return tool
 
