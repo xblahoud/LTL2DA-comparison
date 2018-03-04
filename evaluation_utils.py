@@ -3,6 +3,9 @@ import pandas as pd
 def sort_by_tools(df, tool_order, axis=0):
     rows = []
     for tool in tool_order:
+        if (axis == 0 and tool not in df.index) or \
+           (axis == 1 and tool not in df.columns):
+                continue
         rows.append(df.loc(axis=axis)[[tool]])
     return pd.concat(rows,axis=axis)
 
