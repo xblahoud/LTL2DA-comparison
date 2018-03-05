@@ -119,12 +119,14 @@ def fix_tool(tool,fill_lines=True,fill='\\hfill'):
     tool = tool.replace('//','/---/')
     tool = tool.replace('R3','Rabinizer 3').replace('R4','Rabinizer 4')
     tool = tool.replace('TEL.TP','TEL.TEL')
+    tool = tool.replace('ltl2dstar(NBA)','ltl2dstar (NBA)')
+    tool = tool.replace('ltl2dstar/','ltl2dstar (LTL)/')
     if tool.startswith('Spot/'):
         tool = 'Spot (autf.)/' + tool[5:]
     tool = tool.replace('ltl2tgba','Spot')
     if fill_lines:
         split = tool.split('/')
-        widths = [6.1,4.6,3.8]
+        widths = [6.25,4.6,3.8]
         flush = ['\\raggedright','\\centering','\\raggedleft']
         if len(split) == 3:
             tmp = ['\\parbox[b]{{{}em}}{{{} {}{}}}'.format(widths[i],
