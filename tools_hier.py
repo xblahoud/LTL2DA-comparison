@@ -117,12 +117,13 @@ tool_order = sort_tools('ltl-gux')
 
 def fix_tool(tool,fill_lines=True,fill='\\hfill'):
     tool = tool.replace('//','/---/')
+    tool = tool.replace('ldba','ltl2ldba').replace('Rab','Rabinizer')
     tool = tool.replace('R3','Rabinizer 3').replace('R4','Rabinizer 4')
     tool = tool.replace('TEL.TP','TEL.TEL')
     tool = tool.replace('ltl2dstar(NBA)','ltl2dstar (NBA)')
     tool = tool.replace('ltl2dstar/','ltl2dstar (LTL)/')
     if tool.startswith('Spot/'):
-        tool = 'Spot (autf.)/' + tool[5:]
+        tool = 'Spot (autfilt)/' + tool[5:]
     tool = tool.replace('ltl2tgba','Spot')
     if fill_lines:
         split = tool.split('/')
